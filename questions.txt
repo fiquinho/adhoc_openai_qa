@@ -1,0 +1,25 @@
+que es la autoimpresion de remitos?
+
+Donde puedo ver las opciones de configuracion de talonarios?
+
+
+Cuales son los requisitos a cumplir para ser autoimpresor de AFIP?
+
+
+Cuales son los requisitos para calificar como autoimpresor de AFIP?
+
+Cuales son los pasos para imprimir el libro de IVA en la Versión 16
+
+Como imprimo el libro de IVA?
+
+Cuales son los errores más comunes cuando se quiere validar facturas electronicas?
+----
+
+
+La autoimpresión de remitos consiste en registrarse en la AFIP como autoimpresor y poder imprimir los remitos directamente desde el sistema sobre papel en blanco, sin ningún tipo de diseño preimpreso, incluyendo el número de CAI (Código de Autorización de Impresión). Es necesario cumplir con ciertos requisitos establecidos por AFIP para calificar como autoimpresor. Se recomienda consultar con un contador para entender cómo registrarse en esta modalidad【4:0†source】.
+
+end_index: 468
+file_citation: {'file_id': 'file-6grYD9p4Cb2QMRsoDQrgGh'}
+start_index: 456
+text: 【4:0†source】
+type: file_citation
