@@ -14,14 +14,42 @@ class OpenAIConfig(BaseModel):
     ASSISTANT_ID: str
 
 
+class Annotation(BaseModel):
+    text: str
+    file_id: str
+
+
+class LLMAnswer(BaseModel):
+    answer: str
+    references: list[Annotation]
+
+
+def final_answer_text(answer: LLMAnswer, files_manager: FilesManagerI) -> str:
+    final_answer = answer.answer
+
+    reference_list = []
+    for i, r in enumerate(answer.references):
+        reference_text = f" [ Referencia #{i + 1} ]"
+        final_answer = final_answer.replace(r.text, reference_text)
+        file_link = files_manager.get_file_link(r.file_id)
+        file_name = file_link.source.name
+        file_url = file_link.source.url
+        file_thumbnail = file_link.source.thumbnail
+        reference_list.append(f" {i + 1}. [{file_name}]({file_url})\n\n![Thumbnail]({file_thumbnail})\n\n")
+
+    final_answer += "\n\n#### Referencias\n\n"
+    final_answer += "\n\n".join(reference_list)
+
+    return final_answer
+
+
 class QuestionsAnswers:
-    def __init__(self, client_config: OpenAIConfig, files_manager: FilesManagerI):
+    def __init__(self, client_config: OpenAIConfig):
 
         self.client = OpenAI(api_key=client_config.OPENAI_API_KEY, organization=client_config.OPENAI_ORG_ID)
         self.assistant = self.client.beta.assistants.retrieve(client_config.ASSISTANT_ID)
-        self.files_manager = files_manager
 
-    def answer(self, question: str):
+    def answer(self, question: str) -> LLMAnswer:
 
         thread = self.client.beta.threads.create()
         self.client.beta.threads.messages.create(
@@ -32,52 +60,35 @@ class QuestionsAnswers:
 
         run = self.client.beta.threads.runs.create_and_poll(
             thread_id=thread.id,
-            assistant_id=self.assistant.id,
-            instructions=""
+            assistant_id=self.assistant.id
         )
 
         if run.status == 'completed':
-            final_answer = ""
-
             messages = self.client.beta.threads.messages.list(
                 thread_id=thread.id
             )
             m: Message = messages.data[0]
-            for content in m.content:
-                answer_object = content.text
-                answer_raw_text = answer_object.value
-                annotations = answer_object.annotations
+            content = m.content[0]
+            references = []
+            for i, annotation in enumerate(content.text.annotations):
+                annotation_obj = Annotation(text=annotation.text, file_id=annotation.file_citation.file_id)
+                references.append(annotation_obj)
 
-                references = []
-                for i, annotation in enumerate(annotations):
-                    text_reference = f" [ Referencia #{i + 1} ]"
-                    file_link = self.files_manager.get_file_link(annotation.file_citation.file_id)
-                    file_name = file_link.source.name
-                    file_url = file_link.source.url
-                    references.append(f"[{file_name}]({file_url})\n\n![Thumbnail]({file_link.source.thumbnail})\n\n")
-                    answer_raw_text = answer_raw_text.replace(annotation.text, text_reference)
+            llm_answer = LLMAnswer(answer=content.text.value, references=references)
 
-                final_answer += answer_raw_text + "\n\n"
-                final_answer += "Referencias:\n"
-
-                for i, r in enumerate(references):
-                    final_answer += f" {i + 1}. {r}\n"
-
-            return final_answer
+            return llm_answer
 
         else:
-            print(run.status)
+            raise Exception(f"Thread run failed with status {run.status}")
 
 
 def main():
     config: OpenAIConfig = config_from_env(DEFAULT_ENV_FILE, OpenAIConfig)
     files_manager = create_in_memory_files_manager()
-    qa = QuestionsAnswers(config, files_manager)
-    answer = qa.answer("que es la autoimpresion de remitos?")
-    print(answer)
-
-    # client = OpenAI(api_key=config.OPENAI, organization=config.OPENAI_ORG)
-    # vector_stores = client.beta.vector_stores.list()
+    qa = QuestionsAnswers(config)
+    answer = qa.answer("que es la autoimpresión de remitos?")
+    final_text = final_answer_text(answer, files_manager)
+    print(final_text)
 
 
 if __name__ == '__main__':
