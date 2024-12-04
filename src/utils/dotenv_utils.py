@@ -3,7 +3,9 @@ from typing import Type, TypeVar
 
 from pydantic import BaseModel
 from dotenv import dotenv_values
+# noinspection PyProtectedMember
 from pydantic.fields import FieldInfo
+
 
 BaseModelInstance = TypeVar('BaseModelInstance', bound=BaseModel)
 

@@ -1,53 +1,30 @@
 from openai import OpenAI
-from openai.pagination import SyncCursorPage
-from openai.types.beta import Assistant
 from openai.types.beta.threads import Message
-from openai.types.beta.vector_stores import VectorStoreFile
 from pydantic import BaseModel
 
 from src.defaults import DEFAULT_ENV_FILE
+from src.model.files_manager import FilesManagerI, create_in_memory_files_manager
 from src.utils.dotenv_utils import config_from_env
 
 
 class OpenAIConfig(BaseModel):
-    OPENAI: str
-    OPENAI_ORG: str
+    OPENAI_API_KEY: str
+    OPENAI_ORG_ID: str
     VECTOR_STORE_ID: str
     ASSISTANT_ID: str
 
 
-config: OpenAIConfig = config_from_env(DEFAULT_ENV_FILE, OpenAIConfig)
-
-# stream = client.chat.completions.create(
-#     model="gpt-4o-mini",
-#     messages=[{"role": "user", "content": "Say this is a test"}],
-#     stream=True,
-# )
-# for chunk in stream:
-#     if chunk.choices[0].delta.content is not None:
-#         print(chunk.choices[0].delta.content, end="")
-
-
-files_references = {
-    "Articulo_ Auto impresión.docx": "https://docs.google.com/document/d/1cA0g9nCht5TBP-6mMPJnRoj1AyXW3k4wQD6CIKCNwxI/edit?usp=sharing",
-    "Articulo: (v16) Libro de Iva Ventas y Libro de Iva Compras": "https://docs.google.com/document/d/1-Wg7R07aj9nmEeYskRg1C8o9F-KDCQ60qAepFzMF6EI/edit?usp=sharing",
-    "Articulo: ¿Cómo verificar la conexión de los WebServices y Puntos de Venta?": "https://docs.google.com/document/d/1fb81vdElPpqZl-5mxkBMaOpEuRrhcgLPnuQ6Iao0TWk/edit?usp=sharing"
-}
-
-
 class QuestionsAnswers:
-    def __init__(self, client_config: OpenAIConfig):
+    def __init__(self, client_config: OpenAIConfig, files_manager: FilesManagerI):
 
-        self.client = OpenAI(api_key=client_config.OPENAI, organization=client_config.OPENAI_ORG)
+        self.client = OpenAI(api_key=client_config.OPENAI_API_KEY, organization=client_config.OPENAI_ORG_ID)
         self.assistant = self.client.beta.assistants.retrieve(client_config.ASSISTANT_ID)
-        self.vector_store_files = self.client.beta.vector_stores.files.list(
-            vector_store_id=client_config.VECTOR_STORE_ID
-        )
+        self.files_manager = files_manager
 
     def answer(self, question: str):
 
         thread = self.client.beta.threads.create()
-        message = self.client.beta.threads.messages.create(
+        self.client.beta.threads.messages.create(
             thread_id=thread.id,
             role="user",
             content=question
@@ -74,9 +51,10 @@ class QuestionsAnswers:
                 references = []
                 for i, annotation in enumerate(annotations):
                     text_reference = f" [ Referencia #{i + 1} ]"
-                    file_name = self.client.files.retrieve(annotation.file_citation.file_id).filename
-                    file_link = files_references.get(file_name, None)
-                    references.append(f"[{file_name}]({file_link})")
+                    file_link = self.files_manager.get_file_link(annotation.file_citation.file_id)
+                    file_name = file_link.source.name
+                    file_url = file_link.source.url
+                    references.append(f"[{file_name}]({file_url})\n\n![Thumbnail]({file_link.source.thumbnail})\n\n")
                     answer_raw_text = answer_raw_text.replace(annotation.text, text_reference)
 
                 final_answer += answer_raw_text + "\n\n"
@@ -92,9 +70,14 @@ class QuestionsAnswers:
 
 
 def main():
-    qa = QuestionsAnswers(config)
+    config: OpenAIConfig = config_from_env(DEFAULT_ENV_FILE, OpenAIConfig)
+    files_manager = create_in_memory_files_manager()
+    qa = QuestionsAnswers(config, files_manager)
     answer = qa.answer("que es la autoimpresion de remitos?")
     print(answer)
+
+    # client = OpenAI(api_key=config.OPENAI, organization=config.OPENAI_ORG)
+    # vector_stores = client.beta.vector_stores.list()
 
 
 if __name__ == '__main__':

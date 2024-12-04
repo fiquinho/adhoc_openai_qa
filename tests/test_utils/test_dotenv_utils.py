@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from pydantic import BaseModel
 
 from src.utils.dotenv_utils import config_from_env

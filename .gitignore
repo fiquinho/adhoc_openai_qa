@@ -1,3 +1,5 @@
 .idea/
 .env
 fico.env
+credentials.json
+token.json
