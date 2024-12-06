@@ -3,7 +3,6 @@ from openai.types.beta.threads import Message
 from pydantic import BaseModel
 
 from src.defaults import DEFAULT_ENV_FILE
-from src.model.files_manager import FilesManagerI, create_in_memory_files_manager
 from src.utils.dotenv_utils import config_from_env
 
 
@@ -14,33 +13,14 @@ class OpenAIConfig(BaseModel):
     ASSISTANT_ID: str
 
 
-class Annotation(BaseModel):
-    text: str
-    file_id: str
+class FileAnnotation(BaseModel):
+    text: str       # The text as it appears in the answer
+    file_id: str    # The id of the referenced file
 
 
 class LLMAnswer(BaseModel):
     answer: str
-    references: list[Annotation]
-
-
-def final_answer_text(answer: LLMAnswer, files_manager: FilesManagerI) -> str:
-    final_answer = answer.answer
-
-    reference_list = []
-    for i, r in enumerate(answer.references):
-        reference_text = f" [ Referencia #{i + 1} ]"
-        final_answer = final_answer.replace(r.text, reference_text)
-        file_link = files_manager.get_file_link(r.file_id)
-        file_name = file_link.source.name
-        file_url = file_link.source.url
-        file_thumbnail = file_link.source.thumbnail
-        reference_list.append(f" {i + 1}. [{file_name}]({file_url})\n\n![Thumbnail]({file_thumbnail})\n\n")
-
-    final_answer += "\n\n#### Referencias\n\n"
-    final_answer += "\n\n".join(reference_list)
-
-    return final_answer
+    references: list[FileAnnotation]
 
 
 class QuestionsAnswers:
@@ -71,7 +51,7 @@ class QuestionsAnswers:
             content = m.content[0]
             references = []
             for i, annotation in enumerate(content.text.annotations):
-                annotation_obj = Annotation(text=annotation.text, file_id=annotation.file_citation.file_id)
+                annotation_obj = FileAnnotation(text=annotation.text, file_id=annotation.file_citation.file_id)
                 references.append(annotation_obj)
 
             llm_answer = LLMAnswer(answer=content.text.value, references=references)
@@ -84,11 +64,9 @@ class QuestionsAnswers:
 
 def main():
     config: OpenAIConfig = config_from_env(DEFAULT_ENV_FILE, OpenAIConfig)
-    files_manager = create_in_memory_files_manager()
     qa = QuestionsAnswers(config)
     answer = qa.answer("que es la autoimpresión de remitos?")
-    final_text = final_answer_text(answer, files_manager)
-    print(final_text)
+    print(answer)
 
 
 if __name__ == '__main__':

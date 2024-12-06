@@ -1,5 +1,5 @@
 from src.defaults import DEFAULT_ENV_FILE
-from src.model.main import OpenAIConfig, QuestionsAnswers
+from src.model.answers_generation import OpenAIConfig, QuestionsAnswers
 from src.utils.dotenv_utils import config_from_env
 
 
