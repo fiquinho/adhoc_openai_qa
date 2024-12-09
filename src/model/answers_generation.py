@@ -2,9 +2,6 @@ from openai import OpenAI
 from openai.types.beta.threads import Message
 from pydantic import BaseModel
 
-from src.defaults import DEFAULT_ENV_FILE
-from src.utils.dotenv_utils import config_from_file
-
 
 class OpenAIConfig(BaseModel):
     OPENAI_API_KEY: str
@@ -60,14 +57,3 @@ class QuestionsAnswers:
 
         else:
             raise Exception(f"Thread run failed with status {run.status}")
-
-
-def main():
-    config: OpenAIConfig = config_from_file(DEFAULT_ENV_FILE, OpenAIConfig)
-    qa = QuestionsAnswers(config)
-    answer = qa.answer("que es la autoimpresión de remitos?")
-    print(answer)
-
-
-if __name__ == '__main__':
-    main()
