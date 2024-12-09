@@ -72,6 +72,10 @@ def generate_answer():
 
 def main():
 
+    password = st.text_input("", key="password")
+    if password != "AdHoc_Optimus4587_pass":
+        st.stop()
+
     user = st.text_input("User", key="user")
     if user == "":
         st.stop()
