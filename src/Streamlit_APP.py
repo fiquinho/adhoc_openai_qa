@@ -3,11 +3,11 @@ import os
 import streamlit as st
 from pydantic import BaseModel
 
-from src.model.feedback.feedback import TestLog, SheetLogWriter
-from src.model.files_manager import create_in_memory_files_manager, FilesManagerI
-from src.model.answers_generation import OpenAIConfig, QuestionsAnswers, LLMAnswer
-from src.utils.dotenv_utils import load_config
-from src.utils.drive_utils import DriveCredentials, DriveConfig
+from model.feedback.feedback import TestLog, SheetLogWriter
+from model.files_manager import create_in_memory_files_manager, FilesManagerI
+from model.answers_generation import OpenAIConfig, QuestionsAnswers, LLMAnswer
+from utils.dotenv_utils import load_config
+from utils.drive_utils import DriveCredentials, DriveConfig
 
 
 class MarkdownAnswer(BaseModel):

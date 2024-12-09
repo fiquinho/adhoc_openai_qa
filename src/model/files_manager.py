@@ -3,8 +3,6 @@ from typing import Protocol
 
 from pydantic import BaseModel
 
-from src.defaults import PROJECT_PATH
-
 
 class VectorStoreFile(BaseModel):
     id: str
@@ -39,7 +37,7 @@ class InMemoryFilesManager:
 
 
 def create_in_memory_files_manager() -> InMemoryFilesManager:
-    with open(PROJECT_PATH / "file_links.json", "r") as f:
+    with open("file_links.json", "r") as f:
         files_dict = json.load(f)
 
     file_links_dict = {}
