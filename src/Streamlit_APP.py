@@ -37,6 +37,11 @@ class MarkdownAnswer(BaseModel):
         return cls(text=answer_text, references=references, references_urls=references_urls)
 
 
+class StreamlitConfig(BaseModel):
+    STREAMLIT_PASSWORD: str
+
+
+streamlit_config: StreamlitConfig = load_config(StreamlitConfig, os.getenv)
 openai_config: OpenAIConfig = load_config(OpenAIConfig, os.getenv)
 drive_config: DriveConfig = load_config(DriveConfig, os.getenv)
 
@@ -57,6 +62,9 @@ if 'files_manager' not in st.session_state:
 if 'drive_credentials' not in st.session_state:
     # noinspection PyTypeHints
     st.session_state.drive_credentials = DriveCredentials(drive_config)
+if 'streamlit_config' not in st.session_state:
+    # noinspection PyTypeHints
+    st.session_state.streamlit_config = streamlit_config
 
 
 def generate_answer():
@@ -72,8 +80,8 @@ def generate_answer():
 
 def main():
 
-    password = st.text_input("", key="password")
-    if password != "AdHoc_Optimus4587_pass":
+    password = st.text_input("Password", key="password")
+    if password != st.session_state.streamlit_config.STREAMLIT_PASSWORD:
         st.stop()
 
     user = st.text_input("User", key="user")
