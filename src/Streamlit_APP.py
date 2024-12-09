@@ -3,11 +3,10 @@ import os
 import streamlit as st
 from pydantic import BaseModel
 
-from src.defaults import DEFAULT_ENV_FILE
 from src.model.feedback.feedback import TestLog, SheetLogWriter
 from src.model.files_manager import create_in_memory_files_manager, FilesManagerI
 from src.model.answers_generation import OpenAIConfig, QuestionsAnswers, LLMAnswer
-from src.utils.dotenv_utils import load_config, FromFileConfigGenerator
+from src.utils.dotenv_utils import load_config
 from src.utils.drive_utils import DriveCredentials, DriveConfig
 
 
@@ -72,31 +71,6 @@ def generate_answer():
 
 
 def main():
-    st.markdown("""<link rel="stylesheet" href="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css">
-    <script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
-    <df-messenger
-      location="us-central1"
-      project-id="directed-cove-443712-t5"
-      agent-id="54179b66-42ea-489a-9b07-8e7b8ac38b80"
-      language-code="en"
-      max-query-length="-1">
-      <df-messenger-chat-bubble
-       chat-title="optimusprime">
-      </df-messenger-chat-bubble>
-    </df-messenger>
-    <style>
-      df-messenger {
-        z-index: 999;
-        position: fixed;
-        --df-messenger-font-color: #000;
-        --df-messenger-font-family: Google Sans;
-        --df-messenger-chat-background: #f3f6fc;
-        --df-messenger-message-user-background: #d3e3fd;
-        --df-messenger-message-bot-background: #E1BEE7;
-        bottom: 16px;
-        right: 16px;
-      }
-    </style>""", unsafe_allow_html=True)
 
     user = st.text_input("User", key="user")
     if user == "":
