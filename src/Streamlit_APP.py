@@ -88,8 +88,7 @@ def main():
     if user == "":
         st.stop()
 
-    st.text_area("Ask a question", value="que es la autoimpresion de remitos?",
-                 key="question", on_change=generate_answer)
+    st.text_area("Ask a question", key="question", on_change=generate_answer)
 
     if st.session_state.answer is not None:
         answer = st.session_state.answer
