@@ -3,7 +3,7 @@ from openai.types.beta.threads import Message
 from pydantic import BaseModel
 
 from src.defaults import DEFAULT_ENV_FILE
-from src.utils.dotenv_utils import config_from_env
+from src.utils.dotenv_utils import config_from_file
 
 
 class OpenAIConfig(BaseModel):
@@ -63,7 +63,7 @@ class QuestionsAnswers:
 
 
 def main():
-    config: OpenAIConfig = config_from_env(DEFAULT_ENV_FILE, OpenAIConfig)
+    config: OpenAIConfig = config_from_file(DEFAULT_ENV_FILE, OpenAIConfig)
     qa = QuestionsAnswers(config)
     answer = qa.answer("que es la autoimpresión de remitos?")
     print(answer)

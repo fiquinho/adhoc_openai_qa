@@ -10,7 +10,7 @@ from pydantic.fields import FieldInfo
 BaseModelInstance = TypeVar('BaseModelInstance', bound=BaseModel)
 
 
-def config_from_env(file_path: Path, dataclass: Type[BaseModel]) -> BaseModelInstance:
+def config_from_file(file_path: Path, dataclass: Type[BaseModel]) -> BaseModelInstance:
     """Load configuration from .env file and return a pydantic class instance"""
     env = dotenv_values(file_path)
     init_args = {}

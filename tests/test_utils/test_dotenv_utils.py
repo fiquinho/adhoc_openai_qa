@@ -1,10 +1,19 @@
+import pytest
 from pydantic import BaseModel
 
-from src.utils.dotenv_utils import config_from_env
-from tests.defaults import TESTS_PATH
+from src.utils.dotenv_utils import config_from_file
 
 
-TEST_ENV_FILE = TESTS_PATH / "test_utils" / ".env.test"
+@pytest.fixture
+def test_env_file(tmp_path):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "USER=test_user\n"
+        "ID=123\n"
+        "ADMIN=True\n"
+        "PROD=False\n"
+    )
+    return env_file
 
 
 class TestConfig(BaseModel):
@@ -14,9 +23,8 @@ class TestConfig(BaseModel):
     PROD: bool
 
 
-def test_config_from_env():
-
-    config: TestConfig = config_from_env(TEST_ENV_FILE, TestConfig)
+def test_config_from_file(test_env_file):
+    config: TestConfig = config_from_file(test_env_file, TestConfig)
 
     assert config.USER == "test_user"
     assert config.ID == 123
