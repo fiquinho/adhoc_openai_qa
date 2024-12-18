@@ -3,11 +3,12 @@ import os
 import streamlit as st
 from pydantic import BaseModel
 
-from model.feedback.feedback import TestLog, SheetLogWriter
+from model.feedback.feedback import TestLog, SheetLogWriter, YesNoPartially
 from model.files_manager import create_in_memory_files_manager, FilesManagerI
 from model.answers_generation import OpenAIConfig, QuestionsAnswers, LLMAnswer
 from utils.dotenv_utils import load_config
 from utils.drive_utils import DriveCredentials, DriveConfig
+from defaults import PROJECT_PATH
 
 
 class MarkdownAnswer(BaseModel):
@@ -47,10 +48,8 @@ drive_config: DriveConfig = load_config(DriveConfig, os.getenv)
 
 
 if 'answer' not in st.session_state:
-    # noinspection PyTypeHints
-    st.session_state.answer: MarkdownAnswer | None = None
+    st.session_state.answer: MarkdownAnswer | None = None  # type: ignore
 if 'submitted' not in st.session_state:
-    # noinspection PyTypeHints
     st.session_state.submitted = False
 
 if 'answer_model' not in st.session_state:
@@ -58,7 +57,7 @@ if 'answer_model' not in st.session_state:
     st.session_state.answer_model = QuestionsAnswers(openai_config)
 if 'files_manager' not in st.session_state:
     # noinspection PyTypeHints
-    st.session_state.files_manager = create_in_memory_files_manager()
+    st.session_state.files_manager = create_in_memory_files_manager(PROJECT_PATH / "file_links.json")
 if 'drive_credentials' not in st.session_state:
     # noinspection PyTypeHints
     st.session_state.drive_credentials = DriveCredentials(drive_config)
@@ -71,8 +70,9 @@ def generate_answer():
 
     st.session_state.submitted = False
 
-    question = st.session_state.question
-    answer = st.session_state.answer_model.answer(question)
+    question: str = st.session_state.question
+    answer_model: QuestionsAnswers = st.session_state.answer_model
+    answer = answer_model.answer(question)
 
     markdown_answer = MarkdownAnswer.from_llm_answer(answer, st.session_state.files_manager)
     st.session_state.answer = markdown_answer
@@ -105,8 +105,8 @@ def main():
         #     st.stop()
 
         with st.form("form"):
-            was_solved = st.radio("Resolvió tu duda?", options=["Yes", "Partially", "No"], key="was_solved")
-            was_detailed = st.radio("La respuesta fue detallada?", options=["Yes", "Partially", "No"], key="was_detailed")
+            was_solved: YesNoPartially = st.radio("Resolvió tu duda?", options=YesNoPartially.__args__, key="was_solved")
+            was_detailed: YesNoPartially = st.radio("La respuesta fue detallada?", options=YesNoPartially.__args__, key="was_detailed")
             note = st.text_area("Sugerencia", key="note")
 
             test_log = TestLog(

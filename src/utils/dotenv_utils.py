@@ -3,7 +3,6 @@ from typing import Type, TypeVar, Callable
 
 from pydantic import BaseModel
 from dotenv import dotenv_values
-# noinspection PyProtectedMember
 from pydantic.fields import FieldInfo
 
 
@@ -25,7 +24,7 @@ class FromFileConfigGenerator:
         return self._config_dict.get(key)
 
 
-def load_config(dataclass: Type[BaseModel], get_value_fn: GetConfigValue) -> BaseModelInstance:
+def load_config(dataclass: Type[BaseModelInstance], get_value_fn: GetConfigValue) -> BaseModelInstance:
     init_args = {}
     # noinspection PyUnresolvedReferences
     for field in dataclass.model_fields.items():
@@ -40,6 +39,9 @@ def load_config(dataclass: Type[BaseModel], get_value_fn: GetConfigValue) -> Bas
         # Special case for bool fields
         if field_info.annotation is bool:
             value = value.lower() in ['true', '1']
+        
+        if field_info.annotation is None:
+            raise ValueError(f"Field {field_name} has no annotation")
         init_args[field_name] = field_info.annotation(value)
 
     return dataclass(**init_args)

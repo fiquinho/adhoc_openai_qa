@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import Protocol
 
 from pydantic import BaseModel
@@ -36,8 +37,8 @@ class InMemoryFilesManager:
         return self.files.get(idx, None)
 
 
-def create_in_memory_files_manager() -> InMemoryFilesManager:
-    with open("file_links.json", "r") as f:
+def create_in_memory_files_manager(file: Path) -> InMemoryFilesManager:
+    with open(file, "r") as f:
         files_dict = json.load(f)
 
     file_links_dict = {}
