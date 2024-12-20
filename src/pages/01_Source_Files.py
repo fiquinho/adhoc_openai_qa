@@ -29,6 +29,7 @@ def get_new_source_info():
     new_source_id = st.session_state.new_source_id
     sources_manager: DriveSheetSourcesManager = st.session_state.drive_sources_manager
     
+    new_source_info: DriveFolder | Exception
     try:
         new_source_info = sources_manager.get_folder(new_source_id)
     except Exception as e:

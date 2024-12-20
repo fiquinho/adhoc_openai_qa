@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Type, TypeVar, Callable
+from typing import Any, Type, TypeVar, Callable
 
 from pydantic import BaseModel
 from dotenv import dotenv_values
@@ -25,11 +25,12 @@ class FromFileConfigGenerator:
 
 
 def load_config(dataclass: Type[BaseModelInstance], get_value_fn: GetConfigValue) -> BaseModelInstance:
-    init_args = {}
-    # noinspection PyUnresolvedReferences
-    for field in dataclass.model_fields.items():
-        field_name: str = field[0]
-        field_info: FieldInfo = field[1]
+    init_args: dict[str, Any] = {}
+
+    for field_name, field_info in dataclass.model_fields.items():
+        
+        if field_info.annotation is None:
+            raise ValueError(f"Field {field_name} has no annotation")
 
         value = get_value_fn(field_name)
         if value is None:
@@ -38,10 +39,10 @@ def load_config(dataclass: Type[BaseModelInstance], get_value_fn: GetConfigValue
 
         # Special case for bool fields
         if field_info.annotation is bool:
-            value = value.lower() in ['true', '1']
+            bool_value = value.lower() in ['true', '1']
+            init_args[field_name] = bool_value
+            continue
         
-        if field_info.annotation is None:
-            raise ValueError(f"Field {field_name} has no annotation")
         init_args[field_name] = field_info.annotation(value)
 
     return dataclass(**init_args)
