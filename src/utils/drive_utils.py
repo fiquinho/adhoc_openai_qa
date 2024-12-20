@@ -1,5 +1,7 @@
+import json
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import Resource, build
 from pydantic import BaseModel
 
 
@@ -54,6 +56,18 @@ class DriveCredentials:
                 raise CredentialsError("Invalid DRIVE credentials")
 
             # Save the credentials for the next run
-            self.token_dict = creds.to_json()
+            self.token_dict = json.loads(creds.to_json())
 
         return creds
+
+
+class ServiceGenerator:
+    def __init__(self, drive_creds: DriveCredentials):
+        self.drive_creds = drive_creds
+
+    def get_service(self, service_name: str):
+        creds = self.drive_creds.get_drive_credentials()
+        return build(service_name, "v4", credentials=creds)
+    
+    def get_sheet_service(self):
+        return self.get_service("sheets").spreadsheets()
