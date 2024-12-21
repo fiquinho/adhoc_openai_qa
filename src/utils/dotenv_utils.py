@@ -3,7 +3,6 @@ from typing import Any, Type, TypeVar, Callable
 
 from pydantic import BaseModel
 from dotenv import dotenv_values
-from pydantic.fields import FieldInfo
 
 
 BaseModelInstance = TypeVar('BaseModelInstance', bound=BaseModel)

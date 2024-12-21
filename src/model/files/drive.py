@@ -1,7 +1,6 @@
 from pydantic import BaseModel
-from googleapiclient.discovery import build
 
-from src.utils.drive_utils import DriveCredentials, ServiceGenerator
+from src.utils.drive_utils import SheetServiceFacade
 
 
 DRIVE_MIMETYPES_DICT = {
@@ -28,32 +27,25 @@ class DriveFile(BaseModel):
     webViewLink: str
 
 
-# TODO: Create only one service for sequential operations
 class DriveSheetManager:
-    def __init__(self, service_gen: ServiceGenerator, spreadsheet_id: str, sheet_name: str) -> None:
-        self.service_gen = service_gen
-        self.service = service_gen.get_sheet_service()
+    def __init__(self, service: SheetServiceFacade, spreadsheet_id: str, sheet_name: str) -> None:
+        self.service = service
         self.spreadsheet_id = spreadsheet_id
         self.sheet_name = sheet_name
     
     def next_row(self) -> int:
-        result = (
-            self.service.values()
-            .get(spreadsheetId=self.spreadsheet_id, range=f"{self.sheet_name}!A:A")
-            .execute()
-        )
-        last_row = len(result.get("values", []))
+        result = self.service.get(
+            spreadsheet_id=self.spreadsheet_id, 
+            range_=f"{self.sheet_name}!A:A")
+        
+        last_row = len(result)
         return last_row + 1
     
     def write_row(self, row_number: int, values: list[str | int | float | None]) -> None:
-        body = {"values": [values]}
-
-        self.service.values().update(
-                spreadsheetId=self.spreadsheet_id,
-                range=f"{self.sheet_name}!A{row_number}",
-                valueInputOption="USER_ENTERED",
-                body=body,
-            ).execute()
+        self.service.update(
+                spreadsheet_id=self.spreadsheet_id,
+                range_=f"{self.sheet_name}!A{row_number}",
+                body=[values])
 
 
 class SourcesSheetManager(DriveSheetManager):

@@ -1,7 +1,8 @@
 import json
+from typing import Any
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import Resource, build
+from googleapiclient.discovery import build
 from pydantic import BaseModel
 
 
@@ -33,6 +34,27 @@ class CredentialsError(Exception):
     pass
 
 
+class SheetServiceFacade:
+    def __init__(self, service) -> None:
+        self.service = service
+
+    def get(self, spreadsheet_id: str, range_: str) -> list[list[Any]]:
+        result = (
+            self.service.values()
+            .get(spreadsheetId=spreadsheet_id, range=range_)
+            .execute()
+        )
+        return result.get("values", [])
+
+    def update(self, spreadsheet_id: str, range_: str, body: list[list[Any]]):
+        return self.service.values().update(
+            spreadsheetId=spreadsheet_id,
+            range=range_,
+            valueInputOption="USER_ENTERED",
+            body={"values": body},
+        ).execute()
+
+
 class DriveCredentials:
     def __init__(self, config: DriveConfig):
         self.config = config
@@ -48,7 +70,6 @@ class DriveCredentials:
     def get_drive_credentials(self) -> Credentials:
         creds = Credentials.from_authorized_user_info(self.token_dict, SCOPES)
 
-        # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
@@ -69,5 +90,6 @@ class ServiceGenerator:
         creds = self.drive_creds.get_drive_credentials()
         return build(service_name, "v4", credentials=creds)
     
-    def get_sheet_service(self):
-        return self.get_service("sheets").spreadsheets()
+    def get_sheet_service(self) -> SheetServiceFacade:
+        return SheetServiceFacade(self.get_service("sheets").spreadsheets())
+    

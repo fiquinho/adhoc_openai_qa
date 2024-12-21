@@ -18,11 +18,6 @@ if "drive_sources_manager" not in st.session_state:
     st.session_state.drive_sources_manager = DriveSheetSourcesManager(creds=creds, sheet_id="1XAhPXBsAecJUiyI13l6qtiI-iuITA4XjyDI11BLmGDo")
 if 'new_source_info' not in st.session_state:
     st.session_state.new_source_info = None
-if "sources_manager" not in st.session_state:
-    drive_service_gen: ServiceGenerator = st.session_state.drive_service_gen
-    st.session_state.sources_manager = SourcesSheetManager(drive_service_gen, 
-                                                           "1XAhPXBsAecJUiyI13l6qtiI-iuITA4XjyDI11BLmGDo",
-                                                           "Sources")
 
 
 def get_new_source_info():
@@ -39,8 +34,14 @@ def get_new_source_info():
 
 
 def add_new_source():
-    new_source_id = st.session_state.new_source_id
-    sources_manager: SourcesSheetManager = st.session_state.sources_manager
+    drive_service_gen: ServiceGenerator = st.session_state.drive_service_gen
+    new_source_id: str = st.session_state.new_source_id
+
+    service = drive_service_gen.get_sheet_service()
+    sources_manager = SourcesSheetManager(service, 
+                                          "1XAhPXBsAecJUiyI13l6qtiI-iuITA4XjyDI11BLmGDo",
+                                          "Sources")
+    
     sources_manager.write(new_source_id)
     
 
@@ -66,13 +67,18 @@ def main():
     sources_manager: DriveSheetSourcesManager = st.session_state.drive_sources_manager
     source_folders = sources_manager.get_sources_folders()
     
+    total_files = 0
     for folder in source_folders:
         with st.expander(folder.name):
             st.markdown(f"[Link]({folder.webViewLink}) - ID: {folder.id}")
             files = sources_manager.get_folder_files(folder.id, selection)
+            files_len = len(files)
+            total_files += files_len
+            st.markdown(f"Files: {files_len}")
             for file in files:
                 st.markdown(f"[{file.name}](file.webViewLink) - Modified: {file.modifiedTime}")
 
+    st.markdown(f"Total files: {total_files}")
 
 
 if __name__ == "__main__":

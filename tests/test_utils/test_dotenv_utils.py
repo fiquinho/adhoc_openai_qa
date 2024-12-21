@@ -40,7 +40,7 @@ def test_from_file_config_generator(test_env_file):
     assert config.get_config("NOT_EXIST") is None
 
 
-def test_load_config(test_env_file):
+def test_load_config():
     config = load_config(Config, GetValueSpy())
 
     assert config.USER == "test_user"
