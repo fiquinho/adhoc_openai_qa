@@ -47,11 +47,13 @@ class QuestionsAnswers:
             m: Message = messages.data[0]
             content = m.content[0]
             references = []
-            for i, annotation in enumerate(content.text.annotations):
-                annotation_obj = FileAnnotation(text=annotation.text, file_id=annotation.file_citation.file_id)
+            for annotation in content.text.annotations:  # type: ignore
+                annotation_obj = FileAnnotation(
+                    text=annotation.text, 
+                    file_id=annotation.file_citation.file_id)  # type: ignore
                 references.append(annotation_obj)
 
-            llm_answer = LLMAnswer(answer=content.text.value, references=references)
+            llm_answer = LLMAnswer(answer=content.text.value, references=references) # type: ignore
 
             return llm_answer
 

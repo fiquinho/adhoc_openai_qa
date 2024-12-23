@@ -78,7 +78,7 @@ def test_invalid_credentials(mock_credentials_gen, test_config):
 
 
 @pytest.fixture
-def mock_drive_cred():
+def mock_drive_credentials():
     m = Mock(spec=DriveCredentials)
     m.get_drive_credentials.return_value = {"valid": True}
     return m
@@ -90,21 +90,21 @@ def mock_build():
         yield mock_builds
 
 
-def test_service_generator_get_service(mock_build, mock_drive_cred):
+def test_service_generator_get_service(mock_build, mock_drive_credentials):
     service = Mock()
     mock_build.return_value = service
-    service_gen = ServiceGenerator(mock_drive_cred)
+    service_gen = ServiceGenerator(mock_drive_credentials)
 
     result = service_gen.get_service("service_name")
     assert result == service
-    assert mock_build.call_count == 1
+    mock_drive_credentials.get_drive_credentials.assert_called_once()
     mock_build.assert_called_once_with("service_name", "v4", credentials={"valid": True})
 
 
-def test_service_generator_get_sheet_service(mock_build, mock_drive_cred):
+def test_service_generator_get_sheet_service(mock_build, mock_drive_credentials):
     service = Mock()
     mock_build.return_value = service
-    service_gen = ServiceGenerator(mock_drive_cred)
+    service_gen = ServiceGenerator(mock_drive_credentials)
 
     result = service_gen.get_sheet_service()
     assert isinstance(result, SheetServiceFacade)

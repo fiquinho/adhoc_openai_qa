@@ -35,7 +35,7 @@ class CredentialsError(Exception):
 
 
 class SheetServiceFacade:
-    def __init__(self, service) -> None:
+    def __init__(self, service):
         self.service = service
 
     def get(self, spreadsheet_id: str, range_: str) -> list[list[Any]]:
