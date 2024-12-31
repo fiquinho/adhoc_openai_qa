@@ -1,15 +1,15 @@
 from pydantic import BaseModel
 
-from src.utils.drive_utils import SheetServiceFacade
+from utils.drive_utils import SheetServiceFacade
 
 
-DRIVE_MIMETYPES_DICT = {
+DRIVE_MIMETYPES = {
     "application/vnd.google-apps.document": "docx",
     "application/vnd.google-apps.spreadsheet": "xlsx",
     "application/pdf": "pdf",
 }
 
-DRIVE_EXTENSION_TO_MIMETYPE = {value: key for key, value in DRIVE_MIMETYPES_DICT.items()}
+DRIVE_EXTENSION_TO_MIMETYPE = {value: key for key, value in DRIVE_MIMETYPES.items()}
 
 
 class DriveFolder(BaseModel):
@@ -53,7 +53,6 @@ class SourcesSheetManager(DriveSheetManager):
     def write(self, source_id: str):
         next_row = self.next_row()
         self.write_row(next_row, [source_id])
-        
 
 
 class NameCleaner:
@@ -77,6 +76,6 @@ class NameCleaner:
 class DriveNameCleaner(NameCleaner):
 
     def __init__(self):
-        super().__init__(types_dict=DRIVE_MIMETYPES_DICT,
+        super().__init__(types_dict=DRIVE_MIMETYPES,
                          delete=['/', ':', '?'],
                          replace='_')

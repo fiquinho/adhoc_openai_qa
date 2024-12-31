@@ -1,7 +1,5 @@
-from pydantic import BaseModel
-
 from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build, Resource
+from googleapiclient.discovery import build
 
 from src.model.files.drive import DRIVE_EXTENSION_TO_MIMETYPE, DriveFile, DriveFolder
 

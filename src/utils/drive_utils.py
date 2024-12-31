@@ -34,27 +34,6 @@ class CredentialsError(Exception):
     pass
 
 
-class SheetServiceFacade:
-    def __init__(self, service):
-        self.service = service
-
-    def get(self, spreadsheet_id: str, range_: str) -> list[list[Any]]:
-        result = (
-            self.service.values()
-            .get(spreadsheetId=spreadsheet_id, range=range_)
-            .execute()
-        )
-        return result.get("values", [])
-
-    def update(self, spreadsheet_id: str, range_: str, body: list[list[Any]]):
-        return self.service.values().update(
-            spreadsheetId=spreadsheet_id,
-            range=range_,
-            valueInputOption="USER_ENTERED",
-            body={"values": body},
-        ).execute()
-
-
 class DriveCredentials:
     def __init__(self, config: DriveConfig):
         self.config = config
@@ -82,6 +61,27 @@ class DriveCredentials:
         return creds
 
 
+class SheetServiceFacade:
+    def __init__(self, service):
+        self.service = service
+
+    def get(self, spreadsheet_id: str, range_: str) -> list[list[Any]]:
+        result = (
+            self.service.values()
+            .get(spreadsheetId=spreadsheet_id, range=range_)
+            .execute()
+        )
+        return result.get("values", [])
+
+    def update(self, spreadsheet_id: str, range_: str, body: list[list[Any]]):
+        return self.service.values().update(
+            spreadsheetId=spreadsheet_id,
+            range=range_,
+            valueInputOption="USER_ENTERED",
+            body={"values": body},
+        ).execute()
+    
+
 class ServiceGenerator:
     def __init__(self, drive_creds: DriveCredentials):
         self.drive_creds = drive_creds
@@ -92,4 +92,9 @@ class ServiceGenerator:
     
     def get_sheet_service(self) -> SheetServiceFacade:
         return SheetServiceFacade(self.get_service("sheets").spreadsheets())
-    
+
+
+def get_sheet_service(config: DriveConfig) -> SheetServiceFacade:
+    creds = DriveCredentials(config)
+    service_generator = ServiceGenerator(creds)
+    return service_generator.get_sheet_service()
