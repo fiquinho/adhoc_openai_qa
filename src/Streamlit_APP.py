@@ -4,10 +4,11 @@ import streamlit as st
 from pydantic import BaseModel
 
 from model.feedback.feedback import TestLog, SheetLogWriter, YesNoPartially
-from model.files_manager import create_in_memory_files_manager, FilesManagerI
+from model.files_manager import SheetFilesDB, in_memory_files_manager_from_json, FilesManagerI
 from model.answers_generation import OpenAIConfig, QuestionsAnswers, LLMAnswer
+from src.ingestion.db_manager import VectorStoreFilesDB
 from utils.dotenv_utils import load_config
-from utils.drive_utils import DriveCredentials, DriveConfig
+from utils.drive_utils import DriveCredentials, DriveConfig, get_sheet_service
 from defaults import PROJECT_PATH
 
 
@@ -26,8 +27,8 @@ class MarkdownAnswer(BaseModel):
             answer_text = answer_text.replace(r.text, reference_text)
 
             file_link = files_manager.get_file_link(r.file_id)
-            file_name = file_link.source.name
-            file_url = file_link.source.url
+            file_name = file_link.name
+            file_url = file_link.url
             reference_text = f" {i + 1}. [{file_name}]({file_url})\n\n"
 
             if file_url in references_urls:
@@ -56,8 +57,11 @@ if 'answer_model' not in st.session_state:
     # noinspection PyTypeHints
     st.session_state.answer_model = QuestionsAnswers(openai_config)
 if 'files_manager' not in st.session_state:
-    # noinspection PyTypeHints
-    st.session_state.files_manager = create_in_memory_files_manager(PROJECT_PATH / "file_links.json")
+    sheet_service = get_sheet_service(drive_config)
+    vs_files_db = VectorStoreFilesDB(sheet_service,
+                                    "1XAhPXBsAecJUiyI13l6qtiI-iuITA4XjyDI11BLmGDo",
+                                    "VectorStore")
+    st.session_state.files_manager = SheetFilesDB(vs_files_db)
 if 'drive_credentials' not in st.session_state:
     # noinspection PyTypeHints
     st.session_state.drive_credentials = DriveCredentials(drive_config)

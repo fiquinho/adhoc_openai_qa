@@ -1,7 +1,8 @@
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
-from src.model.files.drive import DRIVE_EXTENSION_TO_MIMETYPE, DriveFile, DriveFolder
+from src.model.files.drive import DRIVE_EXTENSION_TO_MIMETYPE, DriveFolder
+from src.utils.drive_utils import DriveFile
 
 
 SUPPORTED_FILES = ["pdf", "docx"]

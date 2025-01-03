@@ -2,9 +2,9 @@ from google.cloud import storage
 from google.cloud.storage import Bucket, Blob
 from google.oauth2 import service_account
 
-from src.defaults import DEFAULT_ENV_FILE
-from src.utils.dotenv_utils import FromFileConfigGenerator, load_config
-from src.utils.gcs_utils import GCSClientGenerator, GCSConfig
+from defaults import DEFAULT_ENV_FILE
+from utils.dotenv_utils import FromFileConfigGenerator, load_config
+from utils.gcs_utils import GCSClientGenerator, GCSConfig
 
 BUCKET_NAME = 'bucket-optimusprime'
 
@@ -18,6 +18,16 @@ bucket = storage_client.get_bucket(BUCKET_NAME)
 
 # Note: Client.list_blobs requires at least package version 1.17.0.
 blobs = storage_client.list_blobs(BUCKET_NAME)
+counter = {}
+for i, blob in enumerate(blobs):
+    folder = blob.name.split('/')[0]
+    if folder in counter:
+        counter[folder] += 1
+    else:
+        counter[folder] = 1
+
+print(counter)
+
 
 def download_blob(bucket: Bucket, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
@@ -43,9 +53,9 @@ def download_blob(bucket: Bucket, source_blob_name, destination_file_name):
         )
     )
 
-download_blob(bucket, 'datacore/1zxiD2kQoahdYQpSJ1xcNyC0PYky4-B-E_JjBdDUfTGw', 'test.pdf')
+# download_blob(bucket, 'datacore/1zxiD2kQoahdYQpSJ1xcNyC0PYky4-B-E_JjBdDUfTGw', 'test.pdf')
 
-blob = bucket.get_blob("datacore/1zxiD2kQoahdYQpSJ1xcNyC0PYky4-B-E_JjBdDUfTGw")
+# blob = bucket.get_blob("datacore/1zxiD2kQoahdYQpSJ1xcNyC0PYky4-B-E_JjBdDUfTGw")
 
-total = len([blob for blob in blobs if blob == blob])
-print(total)
+# total = len([blob for blob in blobs if blob == blob])
+# print(total)

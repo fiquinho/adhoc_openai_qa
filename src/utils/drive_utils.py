@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import Any, Literal
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -80,21 +80,53 @@ class SheetServiceFacade:
             valueInputOption="USER_ENTERED",
             body={"values": body},
         ).execute()
+
+
+class DriveFile(BaseModel):
+    id: str
+    name: str
+    mimeType: str
+    modifiedTime: str
+    webViewLink: str
+
+
+class FilesServiceFacade:
+    def __init__(self, service):
+        self.service = service
+
+    def get_file(self, idx: str) -> DriveFile:
+        result = self.service(
+            pageSize=50,
+            fields="nextPageToken, files(id, name, mimeType, modifiedTime, webViewLink)",
+            q=f"id = '{idx}'"
+            ).execute()
+        file = result.get("files", [])[0]
+        return DriveFile(**file)
     
 
 class ServiceGenerator:
     def __init__(self, drive_creds: DriveCredentials):
         self.drive_creds = drive_creds
 
-    def get_service(self, service_name: str):
+    def get_service(self, service_name: str, version: Literal["v4", "v3"]):
         creds = self.drive_creds.get_drive_credentials()
-        return build(service_name, "v4", credentials=creds)
+        return build(service_name, version, credentials=creds)
     
     def get_sheet_service(self) -> SheetServiceFacade:
-        return SheetServiceFacade(self.get_service("sheets").spreadsheets())
+        return SheetServiceFacade(self.get_service("sheets", "v4").spreadsheets())
+    
+    def get_files_service(self) -> FilesServiceFacade:
+        return FilesServiceFacade(self.get_service("drive", "v3").files())
 
+
+def get_service_generator(config: DriveConfig) -> ServiceGenerator:
+    creds = DriveCredentials(config)
+    return ServiceGenerator(creds)
 
 def get_sheet_service(config: DriveConfig) -> SheetServiceFacade:
-    creds = DriveCredentials(config)
-    service_generator = ServiceGenerator(creds)
+    service_generator = get_service_generator(config)
     return service_generator.get_sheet_service()
+
+def get_files_service(config: DriveConfig) -> FilesServiceFacade:
+    service_generator = get_service_generator(config)
+    return service_generator.get_files_service()

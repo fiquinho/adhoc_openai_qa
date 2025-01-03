@@ -19,14 +19,6 @@ class DriveFolder(BaseModel):
     webViewLink: str
 
 
-class DriveFile(BaseModel):
-    id: str
-    name: str
-    mimeType: str
-    modifiedTime: str
-    webViewLink: str
-
-
 class DriveSheetManager:
     def __init__(self, service: SheetServiceFacade, spreadsheet_id: str, sheet_name: str) -> None:
         self.service = service

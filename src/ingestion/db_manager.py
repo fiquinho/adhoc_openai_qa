@@ -35,6 +35,13 @@ class VectorStoreFilesDB(DriveSheetManager):
     def get_sources(self) -> list[str]:
         result = self.service.get(
             spreadsheet_id=self.spreadsheet_id, 
-            range_=f"{self.sheet_name}!B:B")
+            range_=f"{self.sheet_name}!B2:B")
         
         return [r[0] for r in result]
+    
+    def get_ids_mapping(self) -> dict[str, str]:
+        result = self.service.get(
+            spreadsheet_id=self.spreadsheet_id, 
+            range_=f"{self.sheet_name}!A2:B")
+        
+        return {r[0]: r[1] for r in result}
