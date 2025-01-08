@@ -40,13 +40,6 @@ class DriveSheetManager:
                 body=[values])
 
 
-class SourcesSheetManager(DriveSheetManager):
-
-    def write(self, source_id: str):
-        next_row = self.next_row()
-        self.write_row(next_row, [source_id])
-
-
 class NameCleaner:
 
     def __init__(self, types_dict: dict[str, str], delete: list[str], replace: str):

@@ -8,4 +8,4 @@ DEFAULT_ENV_FILE = PROJECT_PATH / ".env"
 DRIVE_CREDENTIALS_FILE = PROJECT_PATH / "drive_credentials.json"
 DRIVE_TOKEN_FILE = PROJECT_PATH / "drive_token.json"
 
-FICO_ENV_FILE = PROJECT_PATH / "fico.env"
+DEV_ENV_FILE = PROJECT_PATH / "dev.env"

@@ -4,7 +4,7 @@ from typing import Protocol
 
 from pydantic import BaseModel
 
-from src.ingestion.db_manager import VectorStoreFilesDB
+from ingestion.db_manager import VectorStoreFilesDB
 
 
 class VectorStoreFile(BaseModel):

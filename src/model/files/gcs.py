@@ -4,7 +4,8 @@ from google.cloud.storage import Blob
 
 
 GCS_TYPES = {
-    "application/pdf": "pdf"
+    "application/pdf": "pdf",
+    "application/txt": "txt"
 }
 
 EXTENSION_TO_GCS_TYPE = {value: key for key, value in GCS_TYPES.items()}
@@ -26,7 +27,7 @@ class GCSFile(BaseModel):
         )
     
     @property
-    def file_name(self) -> str:
+    def full_file_name(self) -> str:
         return self.name.split('/')[-1]
 
     @property
@@ -34,5 +35,7 @@ class GCSFile(BaseModel):
         return "/".join(self.id.split('/')[:-2])
     
     @property
-    def full_file_name(self) -> str:
-        return self.file_name + "." + GCS_TYPES[self.content_type]
+    def file_name(self) -> str:
+        extension_length = len(GCS_TYPES[self.content_type]) + 1
+        return self.full_file_name[:-extension_length]
+        

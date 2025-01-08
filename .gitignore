@@ -1,5 +1,6 @@
 .idea/
 .env
+dev.env
 fico.env
 drive_credentials.json
 drive_token.json

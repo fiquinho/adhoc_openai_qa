@@ -1,3 +1,4 @@
+from typing import Protocol
 from pydantic import BaseModel
 from google.cloud import storage
 from google.oauth2 import service_account
@@ -39,6 +40,15 @@ class GCSClientGenerator:
             ),
         )
 
+
+class SourcesManagerI(Protocol):
+    
+    def get_files(self, extensions: list[str]) -> list[GCSFile]:
+        ...
+
+    def download_as_bytes(self, file: GCSFile) -> bytes:
+        ...
+        
 
 class GCSBucketFacade:
 

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from model.feedback.feedback import TestLog, SheetLogWriter, YesNoPartially
 from model.files_manager import SheetFilesDB, in_memory_files_manager_from_json, FilesManagerI
 from model.answers_generation import OpenAIConfig, QuestionsAnswers, LLMAnswer
-from src.ingestion.db_manager import VectorStoreFilesDB
+from ingestion.db_manager import VectorStoreFilesDB
 from utils.dotenv_utils import load_config
 from utils.drive_utils import DriveCredentials, DriveConfig, get_sheet_service
 from defaults import PROJECT_PATH
@@ -60,7 +60,8 @@ if 'files_manager' not in st.session_state:
     sheet_service = get_sheet_service(drive_config)
     vs_files_db = VectorStoreFilesDB(sheet_service,
                                     "1XAhPXBsAecJUiyI13l6qtiI-iuITA4XjyDI11BLmGDo",
-                                    "VectorStore")
+                                    "VectorStore",
+                                    openai_config.VECTOR_STORE_ID)
     st.session_state.files_manager = SheetFilesDB(vs_files_db)
 if 'drive_credentials' not in st.session_state:
     # noinspection PyTypeHints
@@ -125,9 +126,9 @@ def main():
             )
 
             if st.form_submit_button("Submit"):
-                creds = st.session_state.drive_credentials.get_drive_credentials()
+                sheet_service = get_sheet_service(drive_config)
                 # noinspection PyTypeHints
-                st.session_state.log_writer = SheetLogWriter(creds)
+                st.session_state.log_writer = SheetLogWriter(sheet_service)
                 st.session_state.log_writer.write(test_log)
                 st.success("Submitted")
 

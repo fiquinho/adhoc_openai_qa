@@ -3,7 +3,7 @@ from typing import Literal
 from googleapiclient.discovery import build
 from pydantic import BaseModel
 
-from src.utils.drive_utils import SheetServiceFacade
+from utils.drive_utils import SheetServiceFacade
 
 
 YesNo = Literal["Yes", "No"]
