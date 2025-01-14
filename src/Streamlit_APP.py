@@ -5,38 +5,11 @@ from pydantic import BaseModel
 
 from model.feedback.feedback import TestLog, SheetLogWriter, YesNoPartially
 from model.files_manager import SheetFilesDB, in_memory_files_manager_from_json, FilesManagerI
-from model.answers_generation import OpenAIConfig, QuestionsAnswers, LLMAnswer
+from model.answers_generation import MarkdownAnswer, OpenAIConfig, QuestionsAnswers, LLMAnswer
 from ingestion.db_manager import VectorStoreFilesDB
 from utils.dotenv_utils import load_config
 from utils.drive_utils import DriveCredentials, DriveConfig, get_sheet_service
 from defaults import PROJECT_PATH
-
-
-class MarkdownAnswer(BaseModel):
-    text: str
-    references: list[str]
-    references_urls: set[str]
-
-    @classmethod
-    def from_llm_answer(cls, answer: LLMAnswer, files_manager: FilesManagerI) -> 'MarkdownAnswer':
-        answer_text = answer.answer
-        references = []
-        references_urls = set()
-        for i, r in enumerate(answer.references):
-            reference_text = f" [ Referencia #{i + 1} ]"
-            answer_text = answer_text.replace(r.text, reference_text)
-
-            file_link = files_manager.get_file_link(r.file_id)
-            file_name = file_link.name
-            file_url = file_link.url
-            reference_text = f" {i + 1}. [{file_name}]({file_url})\n\n"
-
-            if file_url in references_urls:
-                continue
-
-            references.append(reference_text)
-            references_urls.add(file_url)
-        return cls(text=answer_text, references=references, references_urls=references_urls)
 
 
 class StreamlitConfig(BaseModel):
@@ -122,7 +95,9 @@ def main():
                 shared_sources="Yes" if len(answer.references) > 0 else "No",
                 sources=[r for r in answer.references_urls],
                 was_detailed=was_detailed,
-                note=note if note != "" else None
+                note=note if note != "" else None,
+                thread_id=answer.thread_id,
+                run_id=answer.run_id
             )
 
             if st.form_submit_button("Submit"):

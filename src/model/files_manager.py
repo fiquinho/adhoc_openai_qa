@@ -27,8 +27,7 @@ class FileLink(BaseModel):
 
 class FilesManagerI(Protocol):
 
-    def get_file_link(self, idx: str) -> FileLink:
-        ...
+    def get_file_link(self, idx: str) -> FileLink: ...
 
 
 class InMemoryFilesManager:

@@ -1,3 +1,4 @@
+from concurrent.futures import thread
 from typing import Literal
 
 from googleapiclient.discovery import build
@@ -19,7 +20,9 @@ COLUMNS_MAPPING = {
     "Fuente compartida?": "shared_sources",
     "Fuente": "sources",
     "La respuesta fue detallada?": "was_detailed",
-    "Sugerencia": "note"
+    "Sugerencia": "note",
+    "Thread ID": "thread_id",
+    "Run ID": "run_id"
 }
 
 
@@ -32,6 +35,8 @@ class TestLog(BaseModel):
     sources: list[str] | None
     was_detailed: YesNoPartially
     note: str | None
+    thread_id: str
+    run_id: str
 
 
 class SheetLogWriter:
@@ -39,8 +44,8 @@ class SheetLogWriter:
         self.sheet_service = sheet_service
 
     def write(self, test_log: TestLog):
-        headers = self.sheet_service.get("1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ", "Hoja 1!1:1")
-        last_id = len(self.sheet_service.get("1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ", "Hoja 1!A:A"))
+        headers = self.sheet_service.get("1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ", "Hoja 2!1:1")
+        last_id = len(self.sheet_service.get("1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ", "Hoja 2!A:A"))
 
         init_dict = test_log.model_dump()
         init_dict.update({"id": last_id})
@@ -50,5 +55,5 @@ class SheetLogWriter:
 
         self.sheet_service.update(
             "1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ", 
-            f"Hoja 1!A{last_id + 1}", 
+            f"Hoja 2!A{last_id + 1}", 
             [values_list])

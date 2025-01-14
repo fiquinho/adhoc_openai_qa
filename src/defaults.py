@@ -9,3 +9,5 @@ DRIVE_CREDENTIALS_FILE = PROJECT_PATH / "drive_credentials.json"
 DRIVE_TOKEN_FILE = PROJECT_PATH / "drive_token.json"
 
 DEV_ENV_FILE = PROJECT_PATH / "dev.env"
+
+OPTIMUS_IMAGE = CORE_PATH / "pages" / "optimus.png"

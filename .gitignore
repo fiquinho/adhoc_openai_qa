@@ -12,3 +12,4 @@ src/openai_explorer.ipynb
 src/vertex_test.py
 __pycache__/
 src/acceso_bucket.py
+.coverage
