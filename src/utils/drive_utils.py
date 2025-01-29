@@ -130,3 +130,13 @@ def get_sheet_service(config: DriveConfig) -> SheetServiceFacade:
 def get_files_service(config: DriveConfig) -> FilesServiceFacade:
     service_generator = get_service_generator(config)
     return service_generator.get_files_service()
+
+
+def get_document_id(url: str) -> str:
+    url_start = "https://docs.google.com/document/d/"
+    if not url.startswith(url_start):
+        raise ValueError(f"Invalid document URL: {url}")
+    
+    idx = url[len(url_start):]
+    idx = idx.split("/")[0]
+    return idx

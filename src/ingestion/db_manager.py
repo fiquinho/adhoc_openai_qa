@@ -31,6 +31,8 @@ class VectorStoreFilesDB(DriveSheetManager):
     def __init__(self, service: SheetServiceFacade, spreadsheet_id: str, 
                  sheet_name: str, vector_store_id: str) -> None:
         super().__init__(service, spreadsheet_id, sheet_name)
+        
+        # TODO: take this out of this class
         self.vector_store_id = vector_store_id
     
     def write(self, file_info: VectorStoreFileInfo):
