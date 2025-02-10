@@ -11,13 +11,13 @@ from defaults import OPTIMUS_IMAGE
 from ingestion.db_manager import VectorStoreFilesDB
 from model.files_manager import FileLink, InMemoryFilesManager, SheetFilesDB
 from utils.drive_utils import DriveConfig, get_sheet_service
-from utils.dotenv_utils import load_config
+from src.utils.config_utils import load_environment_config
 from model.feedback.feedback import TestLog, SheetLogWriter, YesNoPartially
 
 
 
-openai_config: OpenAIConfig = load_config(OpenAIConfig, os.getenv)
-drive_config: DriveConfig = load_config(DriveConfig, os.getenv)
+openai_config: OpenAIConfig = load_environment_config(OpenAIConfig, os.getenv)
+drive_config: DriveConfig = load_environment_config(DriveConfig, os.getenv)
 
 
 class ChatMessage(BaseModel):

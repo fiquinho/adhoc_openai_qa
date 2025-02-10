@@ -1,7 +1,7 @@
 import pytest
 from pydantic import BaseModel
 
-from src.utils.dotenv_utils import FromFileConfigGenerator, load_config
+from src.utils.config_utils import DotEnvConfigGenerator, load_environment_config
 
 
 @pytest.fixture
@@ -25,7 +25,7 @@ class Config(BaseModel):
 
 
 def test_from_file_config_generator(test_env_file):
-    config = FromFileConfigGenerator(test_env_file)
+    config = DotEnvConfigGenerator(test_env_file)
     assert config._config_dict == {
         "USER": "test_user",
         "ID": "123",
@@ -33,15 +33,15 @@ def test_from_file_config_generator(test_env_file):
         "PROD": "False"
     }
 
-    assert config.get_config("USER") == "test_user"
-    assert config.get_config("ID") == "123"
-    assert config.get_config("ADMIN") == "True"
-    assert config.get_config("PROD") == "False"
-    assert config.get_config("NOT_EXIST") is None
+    assert config.getenv("USER") == "test_user"
+    assert config.getenv("ID") == "123"
+    assert config.getenv("ADMIN") == "True"
+    assert config.getenv("PROD") == "False"
+    assert config.getenv("NOT_EXIST") is None
 
 
 def test_load_config():
-    config = load_config(Config, GetValueSpy())
+    config = load_environment_config(Config, GetValueSpy())
 
     assert config.USER == "test_user"
     assert config.ID == 123

@@ -11,7 +11,7 @@ BaseModelInstance = TypeVar('BaseModelInstance', bound=BaseModel)
 GetConfigValue = Callable[[str], str | None]
 
 
-class FromFileConfigGenerator:
+class DotEnvConfigGenerator:
     def __init__(self, file_path: Path):
         self.file_path = file_path
         self._config_dict = self._load_config()
@@ -19,16 +19,17 @@ class FromFileConfigGenerator:
     def _load_config(self):
         return dotenv_values(self.file_path)
 
-    def get_config(self, key: str) -> str | None:
+    def getenv(self, key: str) -> str | None:
         return self._config_dict.get(key)
 
 
-def load_config(dataclass: Type[BaseModelInstance], get_value_fn: GetConfigValue) -> BaseModelInstance:
+def load_environment_config(
+        dataclass: Type[BaseModelInstance], getenv_fn: GetConfigValue) -> BaseModelInstance:
     init_args: dict[str, Any] = {}
 
     for field_name, field_info in dataclass.model_fields.items():
 
-        value = get_value_fn(field_name)
+        value = getenv_fn(field_name)
         if value is None:
             init_args[field_name] = value
             continue

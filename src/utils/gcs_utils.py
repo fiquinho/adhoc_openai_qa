@@ -55,8 +55,9 @@ class GCSBucketFacade:
     def __init__(self, bucket: storage.Bucket):
         self.bucket = bucket
 
-    def get_files(self, extensions: list[str]) -> list[GCSFile]:
-        bucket_blobs = [GCSFile.from_blob(blob) for blob in self.bucket.list_blobs()
+    def get_folder_files(self, folder: str, extensions: list[str]) -> list[GCSFile]:
+        bucket_blobs = [GCSFile.from_blob(blob) for blob in 
+                        self.bucket.list_blobs(prefix=folder)
                         if blob.content_type in extensions]
         return bucket_blobs
 

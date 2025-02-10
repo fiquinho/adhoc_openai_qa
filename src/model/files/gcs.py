@@ -38,4 +38,8 @@ class GCSFile(BaseModel):
     def file_name(self) -> str:
         extension_length = len(GCS_TYPES[self.content_type]) + 1
         return self.full_file_name[:-extension_length]
+    
+    @property
+    def source_id(self) -> str:
+        return f"{self.file_folder}/{self.file_name}"
         
