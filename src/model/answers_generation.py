@@ -11,8 +11,6 @@ from model.files_manager import FilesManagerI
 class OpenAIConfig(BaseModel):
     OPENAI_API_KEY: str
     OPENAI_ORG_ID: str
-    VECTOR_STORE_ID: str
-    ASSISTANT_ID: str
 
 
 class FileAnnotation(BaseModel):
@@ -28,12 +26,12 @@ class LLMAnswer(BaseModel):
 
 
 class QuestionsAnswersI(Protocol):
-    def answer(self, question: str) -> LLMAnswer: ...
+    def answer(self, question: str, vector_store_id: str) -> LLMAnswer: ...
 
 
 class QuestionsAnswersMock:
 
-    def answer(self, _: str) -> LLMAnswer:
+    def answer(self, _: str, __: str) -> LLMAnswer:
         sleep(1)
         answer = "This is a mock answer\n\n[[REF 1]]\n\n[[REF 2]]"
         references = [
@@ -48,14 +46,19 @@ class QuestionsAnswersMock:
 
 
 class QuestionsAnswers:
-    def __init__(self, client_config: OpenAIConfig):
+    def __init__(self, client: OpenAI, assistant_id: str):
 
-        self.client = OpenAI(api_key=client_config.OPENAI_API_KEY, organization=client_config.OPENAI_ORG_ID)
-        self.assistant = self.client.beta.assistants.retrieve(client_config.ASSISTANT_ID)
+        self.client = client
+        self.assistant = self.client.beta.assistants.retrieve(assistant_id)
 
-    def answer(self, question: str) -> LLMAnswer:
+    def answer(self, question: str, vector_store_id: str) -> LLMAnswer:
 
-        thread = self.client.beta.threads.create()
+        thread = self.client.beta.threads.create(
+            tool_resources={
+                "file_search": {"vector_store_ids": [vector_store_id]}
+            }
+        )
+        
         self.client.beta.threads.messages.create(
             thread_id=thread.id,
             role="user",
