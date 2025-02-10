@@ -7,7 +7,7 @@ from model.feedback.feedback import TestLog, SheetLogWriter, YesNoPartially
 from model.files_manager import SheetFilesDB, in_memory_files_manager_from_json, FilesManagerI
 from model.answers_generation import MarkdownAnswer, OpenAIConfig, QuestionsAnswers, LLMAnswer
 from ingestion.db_manager import VectorStoreFilesDB
-from utils.dotenv_utils import load_config
+from src.utils.config_utils import load_environment_config
 from utils.drive_utils import DriveCredentials, DriveConfig, get_sheet_service
 from defaults import PROJECT_PATH
 
@@ -16,9 +16,9 @@ class StreamlitConfig(BaseModel):
     STREAMLIT_PASSWORD: str
 
 
-streamlit_config: StreamlitConfig = load_config(StreamlitConfig, os.getenv)
-openai_config: OpenAIConfig = load_config(OpenAIConfig, os.getenv)
-drive_config: DriveConfig = load_config(DriveConfig, os.getenv)
+streamlit_config: StreamlitConfig = load_environment_config(StreamlitConfig, os.getenv)
+openai_config: OpenAIConfig = load_environment_config(OpenAIConfig, os.getenv)
+drive_config: DriveConfig = load_environment_config(DriveConfig, os.getenv)
 
 
 if 'answer' not in st.session_state:

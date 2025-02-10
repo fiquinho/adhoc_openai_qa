@@ -4,12 +4,6 @@ dev.env
 fico.env
 drive_credentials.json
 drive_token.json
-streamlit_secrets.txt
-drive_explorer.ipynb
-ingestion_explorer.ipynb
-quickstart_drive.py
-src/openai_explorer.ipynb
-autotest_explorer.ipynb
 src/vertex_test.py
 __pycache__/
 src/acceso_bucket.py

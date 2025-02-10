@@ -1,0 +1,26 @@
+[vector_stores]
+
+    spreadsheet_id = "1XAhPXBsAecJUiyI13l6qtiI-iuITA4XjyDI11BLmGDo"
+    bucket_name = "bucket-optimusprime"
+
+    [[vector_stores.data_versions]]
+        version = "v16"
+        sheet_name = "V_16"
+        bucket_folder = "V_16"
+        vector_store_id = "vs_67a5aacc7fcc8191a1bea936b8f1e0a6"
+
+    [[vector_stores.data_versions]]
+        version = "v17"
+        sheet_name = "V_17"
+        bucket_folder = "V_17"
+        vector_store_id = "vs_67a5aae88f44819183df90ecf83c7437"
+
+    [[vector_stores.data_versions]]
+        version = "v18"
+        sheet_name = "V_18"
+        bucket_folder = "V_18"
+        vector_store_id = "vs_67a5ab5d5c248191a00675cd70b25398"
+
+[assistant]
+
+    id = "asst_UoxeVJd9Fp0AHugnYAURdYPf"

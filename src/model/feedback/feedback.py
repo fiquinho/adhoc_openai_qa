@@ -57,3 +57,11 @@ class SheetLogWriter:
             "1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ", 
             f"Hoja 2!A{last_id + 1}", 
             [values_list])
+
+    def get_all(self) -> list[TestLog]:
+        result = self.sheet_service.get(
+            "1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ", 
+            "Hoja 1!A2:I")
+
+        return [TestLog(**dict(zip(COLUMNS_MAPPING.values(), r))) for r in result]
+        

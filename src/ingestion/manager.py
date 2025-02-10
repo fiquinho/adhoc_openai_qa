@@ -28,12 +28,14 @@ class IngestionManager:
 
         file_info = VectorStoreFileInfo(
             id=vs_file.id,
-            source_id=file.file_name,
-            source="gcs",
+            source_file_id=file.file_name,
+            source_type="gcs",
             folder_id=file.file_folder,
             last_modified=file.updated,
-            status="ok"
+            status="ok",
+            source_id=file.file_folder + "/" + file.file_name
         )
+
         self.vs_files_db.write(file_info)
         self.openai_client.beta.vector_stores.files.create(
             vector_store_id=self.vs_files_db.vector_store_id,

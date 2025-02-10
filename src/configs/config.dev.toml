@@ -1,0 +1,10 @@
+[vector_stores]
+
+    spreadsheet_id = "1XAhPXBsAecJUiyI13l6qtiI-iuITA4XjyDI11BLmGDo"
+    bucket_name = "bucket-optimusprime"
+
+    [[vector_stores.data_versions]]
+        version = "v16"
+        sheet_name = "VectorStore-Dev"
+        bucket_folder = "V_16"
+        vector_store_id = "vs_67a5aacc7fcc8191a1bea936b8f1e0a6"
