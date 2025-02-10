@@ -10,7 +10,7 @@ from model.answers_generation import MarkdownAnswer, OpenAIConfig, QuestionsAnsw
 from ingestion.db_manager import VectorStoreFilesDB
 from model.files_manager import SheetFilesDB
 from autotest.db_manager import SheetManager
-from utils.dotenv_utils import FromFileConfigGenerator, load_config
+from src.utils.config_utils import DotEnvConfigGenerator, load_environment_config
 from utils.drive_utils import DriveConfig, get_document_id, get_sheet_service
 
 
@@ -24,11 +24,11 @@ class AutotestExample(BaseModel):
 
 
 def main():
-    file_config_generator = FromFileConfigGenerator(DEFAULT_ENV_FILE)
-    drive_config: DriveConfig = load_config(DriveConfig, file_config_generator.get_config)
+    file_config_generator = DotEnvConfigGenerator(DEFAULT_ENV_FILE)
+    drive_config: DriveConfig = load_environment_config(DriveConfig, file_config_generator.getenv)
     sheet_service = get_sheet_service(drive_config)
 
-    openai_config: OpenAIConfig = load_config(OpenAIConfig, file_config_generator.get_config)
+    openai_config: OpenAIConfig = load_environment_config(OpenAIConfig, file_config_generator.getenv)
 
     spreadsheet_id = '1Ax7kL_8lvBWSWQlNAtVrHAUNX_9Ep9gn04FNGXJSob0'
     sheet_name = 'Hoja 2'

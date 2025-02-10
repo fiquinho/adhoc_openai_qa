@@ -8,11 +8,10 @@ import pandas as pd
 from tqdm import tqdm
 
 from ingestion.db_manager import VectorStoreFileInfo, VectorStoreFilesDB
-from model.files_manager import SheetFilesDB
 from model.files.gcs import GCSFile
 from model.answers_generation import OpenAIConfig
 from ingestion.manager import IngestionManager, SourcesDifferences
-from ingestion.config import VectorStoreConfig
+from utils.streamlit_utils import VectorStoreConfig
 from defaults import DEV_CONFIG_FILE, DEFAULT_CONFIG_FILE
 from utils.config_utils import load_environment_config
 from utils.drive_utils import DriveConfig, get_sheet_service

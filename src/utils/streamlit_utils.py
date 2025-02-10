@@ -1,12 +1,6 @@
-import tomli
 from pydantic import BaseModel
 
-from defaults import DEV_CONFIG_FILE
-
-
-with open(DEV_CONFIG_FILE, mode="rb") as fp:
-    config = tomli.load(fp)
-print(config)
+from model.feedback.feedback import FeedbackLogsConfig
 
 
 class DataVersion(BaseModel):
@@ -22,3 +16,11 @@ class VectorStoreConfig(BaseModel):
     data_versions: list[DataVersion]
 
 
+class AssistantConfig(BaseModel):
+    id: str
+
+
+class AppConfig(BaseModel):
+    vector_stores: VectorStoreConfig
+    assistant: AssistantConfig
+    feedback_logs: FeedbackLogsConfig

@@ -14,6 +14,7 @@ YesNoPartially = Literal["Yes", "No", "Partially"]
 COLUMNS_MAPPING = {
     "ID": "id",
     "Usuario": "user",
+    "Versión": "version",
     "Pregunta": "question",
     "Respuesta": "answer",
     "Resolvió tu duda?": "was_solved",
@@ -28,6 +29,7 @@ COLUMNS_MAPPING = {
 
 class TestLog(BaseModel):
     user: str
+    version: str
     question: str
     answer: str
     was_solved: YesNoPartially
@@ -39,13 +41,19 @@ class TestLog(BaseModel):
     run_id: str
 
 
+class FeedbackLogsConfig(BaseModel):
+    spreadsheet_id: str
+    sheet_name: str
+
+
 class SheetLogWriter:
-    def __init__(self, sheet_service: SheetServiceFacade):
+    def __init__(self, sheet_service: SheetServiceFacade, config: FeedbackLogsConfig):
         self.sheet_service = sheet_service
+        self.config = config
 
     def write(self, test_log: TestLog):
-        headers = self.sheet_service.get("1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ", "Hoja 2!1:1")
-        last_id = len(self.sheet_service.get("1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ", "Hoja 2!A:A"))
+        headers = self.sheet_service.get(self.config.spreadsheet_id, f"{self.config.sheet_name}!1:1")
+        last_id = len(self.sheet_service.get(self.config.spreadsheet_id , f"{self.config.sheet_name}!A:A"))
 
         init_dict = test_log.model_dump()
         init_dict.update({"id": last_id})
@@ -54,14 +62,14 @@ class SheetLogWriter:
         values_list = [init_dict[COLUMNS_MAPPING[header]] for header in headers[0]]
 
         self.sheet_service.update(
-            "1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ", 
-            f"Hoja 2!A{last_id + 1}", 
+            self.config.spreadsheet_id, 
+            f"{self.config.sheet_name}!A{last_id + 1}", 
             [values_list])
 
     def get_all(self) -> list[TestLog]:
         result = self.sheet_service.get(
-            "1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ", 
-            "Hoja 1!A2:I")
+            self.config.spreadsheet_id, 
+            f"{self.config.sheet_name}!A2:L")
 
         return [TestLog(**dict(zip(COLUMNS_MAPPING.values(), r))) for r in result]
         

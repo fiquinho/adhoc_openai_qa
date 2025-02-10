@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any, Type, TypeVar, Callable
 
+import tomli
 from pydantic import BaseModel
 from dotenv import dotenv_values
 
@@ -44,3 +45,13 @@ def load_environment_config(
             init_args[field_name] = field_info.annotation(value)
 
     return dataclass(**init_args)
+
+
+def load_toml_config(dataclass: Type[BaseModelInstance], file_path: Path) -> BaseModelInstance:
+    if file_path.suffix != ".toml":
+        raise ValueError("File must be a TOML file")
+    
+    with open(file_path, mode="rb") as fp:
+        config = tomli.load(fp)
+
+    return dataclass(**config)

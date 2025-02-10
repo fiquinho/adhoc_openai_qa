@@ -24,3 +24,8 @@
 [assistant]
 
     id = "asst_UoxeVJd9Fp0AHugnYAURdYPf"
+
+[feedback_logs]
+
+    spreadsheet_id = "1zE8eiNN_C5n7FTLoAufAvAdGbfm5wUwrnFqqqzgskYQ"
+    sheet_name = "FeedbackLogs"
