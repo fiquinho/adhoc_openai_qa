@@ -1,7 +1,8 @@
+from unittest.mock import DEFAULT
 import pytest
 from pydantic import BaseModel
 
-from src.utils.config_utils import DotEnvConfigGenerator, load_environment_config
+from src.utils.config_utils import DotEnvConfigGenerator, load_environment_config, read_toml_file, load_toml_config
 
 
 @pytest.fixture
@@ -24,7 +25,7 @@ class Config(BaseModel):
     OPTIONAL: str | None = None
 
 
-def test_from_file_config_generator(test_env_file):
+def test_dotenv_config_generator(test_env_file):
     config = DotEnvConfigGenerator(test_env_file)
     assert config._config_dict == {
         "USER": "test_user",
@@ -40,7 +41,7 @@ def test_from_file_config_generator(test_env_file):
     assert config.getenv("NOT_EXIST") is None
 
 
-def test_load_config():
+def test_load_environment_config():
     config = load_environment_config(Config, GetValueSpy())
 
     assert config.USER == "test_user"
@@ -49,6 +50,49 @@ def test_load_config():
     assert config.PROD is False
     assert config.OPTIONAL is None
 
+
+@pytest.fixture
+def test_toml_file(tmp_path):
+    toml_file = tmp_path / "config.toml"
+    toml_file.write_text(
+        "[DEFAULT]\n"
+        "USER = 'test_user'\n"
+        "ID = 123\n"
+        "ADMIN = true\n"
+        "PROD = false\n"
+    )
+    return toml_file
+
+
+def test_read_toml_file(test_toml_file):
+    config = read_toml_file(test_toml_file)
+    assert config == {
+        "DEFAULT": {
+            "USER": "test_user",
+            "ID": 123,
+            "ADMIN": True,
+            "PROD": False
+        }
+    }
+
+
+def test_read_toml_file_error(tmp_path):
+    with pytest.raises(ValueError):
+        read_toml_file(tmp_path / "config.txt")
+
+
+class TomlConfig(BaseModel):
+    DEFAULT: Config
+
+
+def test_load_toml_config(test_toml_file):
+    config = load_toml_config(TomlConfig, test_toml_file)
+    assert config.DEFAULT.USER == "test_user"
+    assert config.DEFAULT.ID == 123
+    assert config.DEFAULT.ADMIN is True
+    assert config.DEFAULT.PROD is False
+    assert config.DEFAULT.OPTIONAL is None
+    
 
 class GetValueSpy:
     def __init__(self):

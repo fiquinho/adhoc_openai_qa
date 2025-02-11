@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 import pytest
 from google.oauth2.credentials import Credentials
 
-from src.utils.drive_utils import SCOPES, CredentialsError, DriveConfig, DriveCredentials, DriveFile, FilesServiceFacade, ServiceGenerator, SheetServiceFacade, get_service_generator, get_sheet_service, get_files_service
+from src.utils.drive_utils import SCOPES, CredentialsError, DriveConfig, DriveCredentials, DriveFile, FilesServiceFacade, ServiceGenerator, SheetServiceFacade, get_service_generator, get_sheet_service, get_files_service, get_document_id
 
 
 @pytest.fixture
@@ -154,3 +154,45 @@ def test_get_service_generator(mocker, test_config):
     mock_drive_credentials.assert_called_once_with(test_config)
     assert isinstance(result, ServiceGenerator)
     assert result.drive_creds == mock_drive_credentials
+
+def test_get_sheet_service(mocker, test_config):
+    sheet_service_mock = Mock(spec=SheetServiceFacade)
+    mock_service_gen = mocker.patch("src.utils.drive_utils.get_service_generator")
+    mock_service_gen.return_value = mock_service_gen
+    mock_service_gen.get_sheet_service.return_value = sheet_service_mock
+
+    result = get_sheet_service(test_config)
+
+    mock_service_gen.assert_called_once_with(test_config)
+    mock_service_gen.get_sheet_service.assert_called_once()
+    assert result == sheet_service_mock
+    assert isinstance(result, SheetServiceFacade)
+
+def test_get_files_service(mocker, test_config):
+    files_service_mock = Mock(spec=FilesServiceFacade)
+    mock_service_gen = mocker.patch("src.utils.drive_utils.get_service_generator")
+    mock_service_gen.return_value = mock_service_gen
+    mock_service_gen.get_files_service.return_value = files_service_mock
+
+    result = get_files_service(test_config)
+
+    mock_service_gen.assert_called_once_with(test_config)
+    mock_service_gen.get_files_service.assert_called_once()
+    assert result == files_service_mock
+    assert isinstance(result, FilesServiceFacade)
+
+def test_get_document_id(mocker, test_config):
+    url = "https://docs.google.com/document/d/1/edit"
+    result = get_document_id(url)
+    assert result == "1"
+
+    url = "https://docs.google.com/document/d/1/"
+    result = get_document_id(url)
+    assert result == "1"
+
+    url = "https://docs.google.com/document/d/1/other"
+    result = get_document_id(url)
+    assert result == "1"
+
+    with pytest.raises(ValueError):
+        get_document_id("https://docs.google.com/spreadsheet/d/1/edit")
