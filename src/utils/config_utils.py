@@ -49,7 +49,18 @@ def load_environment_config(
         dataclass: Type[BaseModelInstance], 
         getenv_fn: GetConfigValue
         ) -> BaseModelInstance:
-    
+    """Loads environment configurations into a dataclass instance.
+    Args:
+        dataclass (Type[BaseModelInstance]): The dataclass type to instantiate.
+        getenv_fn (GetConfigValue): A function that retrieves the environment variable value for a given field name.
+    Returns:
+        BaseModelInstance: An instance of the dataclass populated with values from the environment variables.
+    Notes:
+        - If an environment variable is not found for a field, the field is set to None.
+        - Special handling is provided for boolean fields, where 'true' and '1' (case insensitive) are interpreted as True.
+        - The function attempts to cast the environment variable value to the type specified in the dataclass field annotation.
+    """
+
     init_args: dict[str, Any] = {}
 
     for field_name, field_info in dataclass.model_fields.items():
@@ -72,6 +83,14 @@ def load_environment_config(
 
 
 def read_toml_file(file_path: Path) -> dict[str, Any]:
+    """Reads a TOML file and returns its content as a dictionary.
+    Args:
+        file_path (Path): Path to the TOML file
+    Returns:
+        dict: Dictionary with the content of the TOML file
+    Raises:
+        ValueError: If the file is not a TOML file
+    """
 
     if file_path.suffix != ".toml":
         raise ValueError("File must be a TOML file")
@@ -84,6 +103,12 @@ def load_toml_config(
         dataclass: Type[BaseModelInstance], 
         file_path: Path
         ) -> BaseModelInstance:
-    
+    """Loads TOML configurations into a dataclass instance.
+    Args:
+        dataclass (Type[BaseModelInstance]): The dataclass type to instantiate.
+        file_path (Path): Path to the TOML file.
+    Returns:
+        BaseModelInstance: An instance of the dataclass populated with values from the TOML file.
+    """
     init_dict = read_toml_file(file_path)
     return dataclass(**init_dict)
